@@ -52,7 +52,7 @@ impl PackData for Vec<u8>{
     }
 }
 
-pub fn unpack_varint<'a, I: Iterator<Item=&'a u8>>(bytes: &mut I) -> u64{
+fn unpack_varint<'a, I: Iterator<Item=&'a u8>>(bytes: &mut I) -> u64{
     let mut num : u64 = 0;
     for i in 0..5{
         let next_byte = *bytes.next().unwrap() as u8;
@@ -64,7 +64,7 @@ pub fn unpack_varint<'a, I: Iterator<Item=&'a u8>>(bytes: &mut I) -> u64{
     return num;
 }
 
-pub fn pack_varint(num: i32) -> Vec<u8>{
+fn pack_varint(num: i32) -> Vec<u8>{
     let mut remainder = num;
     let mut packed = Vec::new();
     loop{
@@ -79,7 +79,7 @@ pub fn pack_varint(num: i32) -> Vec<u8>{
     return packed;
 }
 
-pub fn pack_port(port: u16) -> Vec<u8>{
+fn pack_port(port: u16) -> Vec<u8>{
     let mut buf = [0u8; 2];
     BigEndian::write_u16(&mut buf[0..2], port);
     return buf.to_vec();
@@ -87,6 +87,9 @@ pub fn pack_port(port: u16) -> Vec<u8>{
 
 pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<MinecraftServerInfo>
     where C: Read + Write {
+
+    // Don't ask me about what exactly this is doing
+    // I just implemented logic I found in other functioning Minecraft query programs
 
     // Create a vec for the query header bytes
     let mut header = Vec::new();
@@ -113,6 +116,7 @@ pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<Minec
     // Unused: expected response length
     let _ = unpack_varint(&mut data_iter);
 
+    // After the above 3 bytes, the rest of the output is json
     let json = data_iter.filter(|&byte| *byte as u8 != 0)
                         .map(|byte| *byte as char)
                         .collect::<String>();
