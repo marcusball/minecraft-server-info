@@ -5,7 +5,6 @@ use std::io::Error as StdError;
 use std::io::prelude::*;
 use byteorder::{ByteOrder, BigEndian};
 use std::iter::Iterator;
-use std::slice::Iter;
 use rustc_serialize::json;
 
 error_chain! {
@@ -53,7 +52,7 @@ impl PackData for Vec<u8>{
     }
 }
 
-pub fn unpack_varint(bytes: &mut Iter<u8>) -> u64{
+pub fn unpack_varint<'a, I: Iterator<Item=&'a u8>>(bytes: &mut I) -> u64{
     let mut num : u64 = 0;
     for i in 0..5{
         let next_byte = *bytes.next().unwrap() as u8;
@@ -101,12 +100,12 @@ pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<Minec
     let _ = stream.write(&vec![0u8].pack());
     //
     let mut read_buf = [0; 512];
-    let bytes = try!(stream.read(&mut read_buf)); // ignore here too
+    let bytes_read = try!(stream.read(&mut read_buf)); // ignore here too
 
 
-    println!("Read {} bytes!", bytes);
+    println!("Read {} bytes!", bytes_read);
 
-    let mut data_iter = read_buf.iter();
+    let mut data_iter = read_buf.iter().take(bytes_read);
     let unused_packet_len = unpack_varint(&mut data_iter);
     let unused_packet_id  = unpack_varint(&mut data_iter);
     let unused_expected_response_len = unpack_varint(&mut data_iter);
