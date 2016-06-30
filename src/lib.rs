@@ -1,4 +1,5 @@
 extern crate rustc_serialize;
+extern crate byteorder;
 
 use std::io::prelude::*;
 use byteorder::{ByteOrder, BigEndian};
@@ -123,4 +124,15 @@ pub struct MinecraftPlayersObject{
 pub struct MinecraftPlayerObject{
     pub id: String,
     pub name: String
+}
+
+#[test]
+fn test_pack_varint(){
+    assert_eq!(pack_varint(17), vec![0x11 as u8]);
+}
+
+#[cfg(test)]
+mod test{
+
+
 }
