@@ -7,4 +7,3 @@ authors = ["Marcus Ball <marcus@marcusball.me>"]
 bytes = "0.3.0"
 byteorder = "0.5.3"
 rustc-serialize = "0.3"
-error-chain = "0.1.12"

@@ -1,6 +1,5 @@
 extern crate byteorder;
 extern crate rustc_serialize;
-#[macro_use] extern crate error_chain;
 
 mod miner;
 

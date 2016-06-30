@@ -1,33 +1,10 @@
 extern crate rustc_serialize;
-extern crate error_chain;
 
-use std::io::Error as StdError;
 use std::io::prelude::*;
 use byteorder::{ByteOrder, BigEndian};
 use std::iter::Iterator;
 use rustc_serialize::json;
-
-error_chain! {
-    // The type defined for this error. These are the conventional
-    // and recommended names, but they can be arbitrarily chosen.
-    types {
-        Error, ErrorKind, ChainErr, Result;
-    }
-
-    links {
-
-    }
-
-    foreign_links {
-         //I have literally no idea what I'm doing but this compiled
-        json::DecoderError, Json, "JSONBROKE";
-        StdError, StdError, "StdError";
-    }
-
-    errors {
-
-    }
-}
+use std::error::Error;
 
 trait PackData{
     fn pack(&self) -> Vec<u8>;
@@ -85,7 +62,7 @@ fn pack_port(port: u16) -> Vec<u8>{
     return buf.to_vec();
 }
 
-pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<MinecraftServerInfo>
+pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<MinecraftServerInfo, Box<Error + Send + Sync>>
     where C: Read + Write {
 
     // Don't ask me about what exactly this is doing
