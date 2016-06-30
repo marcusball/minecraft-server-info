@@ -87,6 +87,8 @@ pub fn pack_port(port: u16) -> Vec<u8>{
 
 pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<MinecraftServerInfo>
     where C: Read + Write {
+
+    // Create a vec for the query header bytes
     let mut header = Vec::new();
     header.push(0 as u8);
     header.push(0 as u8);
@@ -96,24 +98,24 @@ pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<Minec
 
     header = header.pack();
 
-    let _ = stream.write(&header).unwrap();
-    let _ = stream.write(&vec![0u8].pack());
-    //
-    let mut read_buf = [0; 512];
+    try!(stream.write(&header));
+    try!(stream.write(&vec![0u8].pack()));
+
+    let mut read_buf = [0; 1024];
     let bytes_read = try!(stream.read(&mut read_buf)); // ignore here too
 
-
-    println!("Read {} bytes!", bytes_read);
-
     let mut data_iter = read_buf.iter().take(bytes_read);
-    let unused_packet_len = unpack_varint(&mut data_iter);
-    let unused_packet_id  = unpack_varint(&mut data_iter);
-    let unused_expected_response_len = unpack_varint(&mut data_iter);
 
-    println!("Packet length: {}, Packed Id: {}, Expected response length: {}", unused_packet_len, unused_packet_id, unused_expected_response_len);
+    // Unused: packet length
+    let _ = unpack_varint(&mut data_iter);
+    // Unused: packet id
+    let _ = unpack_varint(&mut data_iter);
+    // Unused: expected response length
+    let _ = unpack_varint(&mut data_iter);
 
-    let json = data_iter.filter(|&byte| *byte as u8 != 0).map(|byte| *byte as char).collect::<String>();
-    //println!("'{}'", json);
+    let json = data_iter.filter(|&byte| *byte as u8 != 0)
+                        .map(|byte| *byte as char)
+                        .collect::<String>();
 
     return Ok(try!(json::decode(&json)));
 }
