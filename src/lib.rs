@@ -102,25 +102,25 @@ pub fn query_server<C>(stream: &mut C, host: &String, port: u16) -> Result<Minec
     return Ok(try!(json::decode(&json)));
 }
 
-#[derive(RustcDecodable)]
+#[derive(RustcDecodable, Debug)]
 pub struct MinecraftServerInfo{
     pub description: MinecraftTextObject,
     pub players: MinecraftPlayersObject
 }
 
-#[derive(RustcDecodable)]
+#[derive(RustcDecodable, Debug)]
 pub struct MinecraftTextObject{
     pub text: String
 }
 
-#[derive(RustcDecodable)]
+#[derive(RustcDecodable, Debug)]
 pub struct MinecraftPlayersObject{
     pub max: u8,
     pub online: u8,
     pub sample: Option<Vec<MinecraftPlayerObject>>
 }
 
-#[derive(RustcDecodable)]
+#[derive(RustcDecodable, Debug)]
 pub struct MinecraftPlayerObject{
     pub id: String,
     pub name: String
@@ -133,6 +133,4 @@ fn test_pack_varint(){
 
 #[cfg(test)]
 mod test{
-
-
 }
